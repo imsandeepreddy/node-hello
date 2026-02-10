@@ -1,0 +1,42 @@
+name: Docker CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  IMAGE_NAME: node-hello
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Docker metadata (tagging strategy)
+      - name: Set image tag
+        id: meta
+        run: |
+          echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      # Login to Docker Hub
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build & push image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
