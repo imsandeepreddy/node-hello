@@ -1,9 +1,10 @@
-# In your other project's .github/workflows/
 name: CI
 
 on: [push, pull_request]
 
 jobs:
   ci:
-    uses: imsandeepreddy/workflow-templates/.github/workflows/java-ci.yaml@main
+    uses: imsandeepreddy/workflows-templates/.github/workflows/docker-ci.yaml@main
     secrets: inherit
+    with:
+      IMAGE_NAME: "node-hello"
